@@ -1,0 +1,19 @@
+<div class="span6">
+    <table class="table table-striped table-condensed">
+        <thead>
+        <tr>
+            <th style="min-width: 80px;">Nome</th>
+            <th style="width:20px;"> </th>
+            <th style="width:20px;"> </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="painel in paineis">
+            <td>{{ painel.nome }}</td>          
+            <td><a ng-click="editPainel(painel.id)" class="btn btn-small btn-primary">Editar</a></td>
+            <td><a ng-click="deletePainel(painel.id)" class="btn btn-small btn-danger">Apagar</a></td>
+        </tr>
+        </tbody>
+    </table>
+    <a ng-click="createNewPainel()" class="btn btn-small">Criar novo Painel</a>
+</div>
