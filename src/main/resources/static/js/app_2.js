@@ -1,6 +1,13 @@
-var rackModule = angular.module('rackmanagement', []);
+var rackModule = angular.module('rackmanagement', ["ngResource", "spring-data-rest"]);
 
-rackModule.controller('rackController', ['$scope', '$http', function ($scope, $http) {
+/*rackModule.config(function(SpringDataRestAdapterProvider) {
+    SpringDataRestAdapterProvider.config({
+        'linkSelfLinkName' : 'self',
+        'linksKey' : '_links'
+    });
+});*/
+
+rackModule.controller('rackController', function ($scope, $http, SpringDataRestAdapter) {
 
     var urlBase = "";
     //$scope.toggle = true;
@@ -10,27 +17,30 @@ rackModule.controller('rackController', ['$scope', '$http', function ($scope, $h
     $http.defaults.headers.post["Content-Type"] = "application/json";
 
     function findAllPontos(url) {
-        $http.get(url).
-                success(function (data) {
-                    if (data._embedded !== undefined) {
-                        $scope.pontos = data._embedded.pontos;
-                    } else {
-                        $scope.pontos = [];
-                    }
-                });
+        var httpPromise = $http.get('/pontos').success(function(response) {
+            //console.log(angular.toJson(response,true));
+        });
+        SpringDataRestAdapter.process(httpPromise, 'painel', true).then(function(processedResponse) {
+            if (processedResponse._embeddedItems != undefined) {
+                $scope.pontos = processedResponse._embeddedItems.pontos;
+            } else {
+                $scope.pontos = [];
+            }
+        });
     } 
 
     function findAllPaineis() {
-        //get all tasks and display initially
-        $http.get(urlBase + '/paineis').
-                success(function (data) {
-                    if (data._embedded != undefined) {
-                        $scope.paineis = data._embedded.paineis;
-                    } else {
-                        $scope.paineis = [];
-                    }
-                    //$scope.toggle = '!toggle';
-                });
+        var httpPromise = $http.get('/paineis').success(function(response) {
+            //console.log(angular.toJson(response,true));
+        });
+        SpringDataRestAdapter.process(httpPromise, 'pontos').then(function(processedResponse) {
+            if (processedResponse._embeddedItems != undefined) {
+                $scope.paineis = processedResponse._embeddedItems;
+                //console.log(processedResponse);
+            } else {
+                $scope.paineis = [];
+            }
+        });
     }
 
     findAllPaineis();
@@ -49,7 +59,7 @@ rackModule.controller('rackController', ['$scope', '$http', function ($scope, $h
                         for (var i = 1; i <= $scope.numPortas; i++) {
                             novoPonto(i, newPainelUri);
                         }
-                        console.log("Painel " + newPainelUri + " adicionado.");
+                        //console.log("Painel " + newPainelUri + " adicionado.");
                         alert("Painel Adicionado");
                         // Refetching EVERYTHING every time can get expensive over time
                         // Better solution would be to $http.get(headers()["location"]) and add it to the list
@@ -65,7 +75,7 @@ rackModule.controller('rackController', ['$scope', '$http', function ($scope, $h
         }).
                 success(function(data, status, headers) {
                     var newPontoUri = headers()["location"];
-                    console.log("Ponto " + newPontoUri + " adicionado.");
+                    //console.log("Ponto " + newPontoUri + " adicionado.");
                 });
     };
 
@@ -109,7 +119,7 @@ rackModule.controller('rackController', ['$scope', '$http', function ($scope, $h
         findAllTasks();
     }; */
 
-}]);
+});
 
 //Angularjs Directive for confirm dialog box
 /* taskManagerModule.directive('ngConfirmClick', [

@@ -1,6 +1,10 @@
-var rackModule = angular.module('rackmanagement', []);
+var rackModule = angular.module('rackmanagement', ['ngResource', 'hateoas']);
 
-rackModule.controller('rackController', ['$scope', '$http', function ($scope, $http) {
+rackModule.config(function (HateoasInterceptorProvider) {
+    HateoasInterceptorProvider.transformAllResponses();
+});
+
+rackModule.controller('rackController', function ($scope, $http, $resource) {
 
     var urlBase = "";
     //$scope.toggle = true;
@@ -10,27 +14,12 @@ rackModule.controller('rackController', ['$scope', '$http', function ($scope, $h
     $http.defaults.headers.post["Content-Type"] = "application/json";
 
     function findAllPontos(url) {
-        $http.get(url).
-                success(function (data) {
-                    if (data._embedded !== undefined) {
-                        $scope.pontos = data._embedded.pontos;
-                    } else {
-                        $scope.pontos = [];
-                    }
-                });
+        $scope.pontos = $resource('/pontos').get(null, function() {});
+
     } 
 
     function findAllPaineis() {
-        //get all tasks and display initially
-        $http.get(urlBase + '/paineis').
-                success(function (data) {
-                    if (data._embedded != undefined) {
-                        $scope.paineis = data._embedded.paineis;
-                    } else {
-                        $scope.paineis = [];
-                    }
-                    //$scope.toggle = '!toggle';
-                });
+                $scope.paineis = $resource('/paineis').get(null, function() {});
     }
 
     findAllPaineis();
@@ -49,7 +38,7 @@ rackModule.controller('rackController', ['$scope', '$http', function ($scope, $h
                         for (var i = 1; i <= $scope.numPortas; i++) {
                             novoPonto(i, newPainelUri);
                         }
-                        console.log("Painel " + newPainelUri + " adicionado.");
+                        //console.log("Painel " + newPainelUri + " adicionado.");
                         alert("Painel Adicionado");
                         // Refetching EVERYTHING every time can get expensive over time
                         // Better solution would be to $http.get(headers()["location"]) and add it to the list
@@ -65,7 +54,7 @@ rackModule.controller('rackController', ['$scope', '$http', function ($scope, $h
         }).
                 success(function(data, status, headers) {
                     var newPontoUri = headers()["location"];
-                    console.log("Ponto " + newPontoUri + " adicionado.");
+                    //console.log("Ponto " + newPontoUri + " adicionado.");
                 });
     };
 
@@ -109,7 +98,7 @@ rackModule.controller('rackController', ['$scope', '$http', function ($scope, $h
         findAllTasks();
     }; */
 
-}]);
+});
 
 //Angularjs Directive for confirm dialog box
 /* taskManagerModule.directive('ngConfirmClick', [
