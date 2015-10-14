@@ -6,38 +6,42 @@ rackModule.controller('rackController', function ($scope, $http) {
     //$scope.toggle = true;
     $scope.numPortas = 24;
     $scope.portOptions = [16, 24, 48];
-    
+
     $http.defaults.headers.post["Content-Type"] = "application/json";
 
     function findAllPontos(url) {
         $http.get(url).
                 success(function (data) {
-                    if (data._embedded != undefined) {
+                    if (data._embedded !== undefined) {
                         $scope.pontos = data._embedded.pontos;
-                        angular.forEach(data._links, function(value) {
-                           if (value.rel === 'painel') {
-                               $http.get(value.href).success(function (p) {
-                                   $scope.pontos.painel = p;
-                               })
-                               $scope.pontos.painel = value.href;
-                           } 
+                        angular.forEach(data._embedded.pontos, function (ponto) {
+                            angular.forEach(ponto._links, function (value, key) {
+                                if (key === 'painel') {
+                                    $http.get(value.href).success(function (p) {
+                                        $scope.pontos.painel = p;
+                                    })
+                                    $scope.pontos.painel = value.href;
+                                }
+                            })
                         });
                     } else {
                         $scope.pontos = [];
                     }
                 });
-    } 
+    }
 
     function findAllPaineis() {
         //get all tasks and display initially
         $http.get(urlBase + '/paineis').
                 success(function (data) {
-                    if (data._embedded != undefined) {
+                    if (data._embedded !== undefined) {
                         $scope.paineis = data._embedded.paineis;
-                        angular.forEach(data._links, function(value) {
-                           if (value.rel === 'pontos') {
-                               $scope.paineis.pontos = findAllPontos(value.href);
-                           } 
+                        angular.forEach(data._embedded.paineis, function (painel) {
+                            angular.forEach(painel._links, function (value, key) {
+                                if (key === 'pontos') {
+                                    $scope.paineis.pontos = findAllPontos(value.href);
+                                }
+                            });
                         });
                     } else {
                         $scope.paineis = [];
@@ -50,7 +54,7 @@ rackModule.controller('rackController', function ($scope, $http) {
 
     //add a new task
     $scope.novoPainel = function novoPainel() {
-        if ($scope.nome == "" || $scope.numPortas == "") {
+        if ($scope.nome === "" || $scope.numPortas === "") {
             alert("Dados Insuficientes! Por favor, informe o numero de portas e o nome do painel");
         }
         else {
@@ -70,72 +74,73 @@ rackModule.controller('rackController', function ($scope, $http) {
                     });
         }
     };
-    
+
     function novoPonto(numero, painel) {
-        $http.post(urlBase + '/pontos',{
+        $http.post(urlBase + '/pontos', {
             numero: numero,
             painel: painel
         }).
-                success(function(data, status, headers) {
+                success(function (data, status, headers) {
                     var newPontoUri = headers()["location"];
                     console.log("Ponto " + newPontoUri + " adicionado.");
                 });
-    };
+    }
+    ;
 
     // toggle selection for a given task by task id
     /* $scope.toggleSelection = function toggleSelection(taskUri) {
-        var idx = $scope.selection.indexOf(taskUri);
-
-        // is currently selected
-        // HTTP PATCH to ACTIVE state
-        if (idx > -1) {
-            $http.patch(taskUri, {taskStatus: 'ACTIVE'}).
-                    success(function (data) {
-                        alert("Task unmarked");
-                        findAllTasks();
-                    });
-            $scope.selection.splice(idx, 1);
-        }
-
-        // is newly selected
-        // HTTP PATCH to COMPLETED state
-        else {
-            $http.patch(taskUri, {taskStatus: 'COMPLETED'}).
-                    success(function (data) {
-                        alert("Task marked completed");
-                        findAllTasks();
-                    });
-            $scope.selection.push(taskUri);
-        }
-    }; */
+     var idx = $scope.selection.indexOf(taskUri);
+     
+     // is currently selected
+     // HTTP PATCH to ACTIVE state
+     if (idx > -1) {
+     $http.patch(taskUri, {taskStatus: 'ACTIVE'}).
+     success(function (data) {
+     alert("Task unmarked");
+     findAllTasks();
+     });
+     $scope.selection.splice(idx, 1);
+     }
+     
+     // is newly selected
+     // HTTP PATCH to COMPLETED state
+     else {
+     $http.patch(taskUri, {taskStatus: 'COMPLETED'}).
+     success(function (data) {
+     alert("Task marked completed");
+     findAllTasks();
+     });
+     $scope.selection.push(taskUri);
+     }
+     }; */
 
 
     // Archive Completed Tasks
     /* $scope.archiveTasks = function archiveTasks() {
-        $scope.selection.forEach(function (taskUri) {
-            if (taskUri != undefined) {
-                $http.patch(taskUri, {taskArchived: 1});
-            }
-        });
-        alert("Successfully Archived");
-        console.log("It's risky to run this without confirming all the patches are done. when.js is great for that");
-        findAllTasks();
-    }; */
+     $scope.selection.forEach(function (taskUri) {
+     if (taskUri != undefined) {
+     $http.patch(taskUri, {taskArchived: 1});
+     }
+     });
+     alert("Successfully Archived");
+     console.log("It's risky to run this without confirming all the patches are done. when.js is great for that");
+     findAllTasks();
+     }; */
 
 });
 
 //Angularjs Directive for confirm dialog box
 /* taskManagerModule.directive('ngConfirmClick', [
-    function () {
-        return {
-            link: function (scope, element, attr) {
-                var msg = attr.ngConfirmClick || "Are you sure?";
-                var clickAction = attr.confirmedClick;
-                element.bind('click', function (event) {
-                    if (window.confirm(msg)) {
-                        scope.$eval(clickAction);
-                    }
-                });
-            }
-        };
-    }]); */
+ function () {
+ return {
+ link: function (scope, element, attr) {
+ var msg = attr.ngConfirmClick || "Are you sure?";
+ var clickAction = attr.confirmedClick;
+ element.bind('click', function (event) {
+ if (window.confirm(msg)) {
+ scope.$eval(clickAction);
+ }
+ });
+ }
+ };
+ }]); */
