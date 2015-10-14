@@ -17,17 +17,7 @@ rackModule.controller('rackController',
     
     $scope.numPortas = 24;
     $scope.portOptions = [16, 24, 48];
-    
-    $scope.root = function() {
-        halClient.$get("/", {
-            linksAttribute : "_links"
-        }).then(function(resource) {
-            $rootScope.resource = resource;
-        });
-    };
-    
-    $scope.root();
-    
+        
     /*function findAllPontos(url) {
         if ($rootScope.resource)
             return 
@@ -67,9 +57,10 @@ rackModule.controller('rackController',
         }
         else {
             return $scope.apiRoot.then(function(apiRoot) {
-                return apiRoot.$post('paineis', null, {
+                var res = apiRoot.$post('paineis', null, {
                     nome : $scope.nome
                 }).then(load);
+                console.log(res);
             });
 /*            $http.post(urlBase + '/paineis', {
                 nome: $scope.nome
