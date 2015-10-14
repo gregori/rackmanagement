@@ -7,6 +7,7 @@ package programacaovi.rackmanagement.model;
 
 import java.util.List;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -26,7 +27,7 @@ public class Painel {
     @NotNull
     private String nome;
     
-    @OneToMany(mappedBy = "painel")
+    @OneToMany(mappedBy = "painel", fetch = FetchType.EAGER)
     private List<Ponto> pontos;
     
     public Painel() { }
