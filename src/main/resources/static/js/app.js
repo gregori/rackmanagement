@@ -14,6 +14,14 @@ rackModule.controller('rackController', function ($scope, $http) {
                 success(function (data) {
                     if (data._embedded != undefined) {
                         $scope.pontos = data._embedded.pontos;
+                        angular.forEach(data._links, function(value) {
+                           if (value.rel === 'painel') {
+                               $http.get(value.href).success(function (p) {
+                                   $scope.pontos.painel = p;
+                               })
+                               $scope.pontos.painel = value.href;
+                           } 
+                        });
                     } else {
                         $scope.pontos = [];
                     }
@@ -26,6 +34,11 @@ rackModule.controller('rackController', function ($scope, $http) {
                 success(function (data) {
                     if (data._embedded != undefined) {
                         $scope.paineis = data._embedded.paineis;
+                        angular.forEach(data._links, function(value) {
+                           if (value.rel === 'pontos') {
+                               $scope.paineis.pontos = findAllPontos(value.href);
+                           } 
+                        });
                     } else {
                         $scope.paineis = [];
                     }
