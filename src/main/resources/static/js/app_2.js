@@ -1,22 +1,36 @@
-var rackModule = angular.module('rackmanagement', ["ngResource", "spring-data-rest"]);
+var rackModule = angular.module('rackmanagement', ["angular-hal"]);
 
-/*rackModule.config(function(SpringDataRestAdapterProvider) {
-    SpringDataRestAdapterProvider.config({
-        'linkSelfLinkName' : 'self',
-        'linksKey' : '_links'
+rackModule.run(function($rootScope, halClient) {
+    $rootScope.apiRoot = halClient.$get('/', {
+        linksAttribute : "_links"
     });
-});*/
+});
 
-rackModule.controller('rackController', function ($scope, $http, SpringDataRestAdapter) {
+rackModule.controller('rackController',
+    function ($window, $scope, $timeout, halClient) {
 
-    var urlBase = "";
-    //$scope.toggle = true;
+    var searchTimeout;
+    $scope.$watch('search', function(value) {
+        $timeout.cancel(searchTimeout);
+        searchTimeout = $timeout(load, 300);
+    });
+    
     $scope.numPortas = 24;
     $scope.portOptions = [16, 24, 48];
     
-    $http.defaults.headers.post["Content-Type"] = "application/json";
-
-    function findAllPontos(url) {
+    $scope.root = function() {
+        halClient.$get("/", {
+            linksAttribute : "_links"
+        }).then(function(resource) {
+            $rootScope.resource = resource;
+        });
+    };
+    
+    $scope.root();
+    
+    /*function findAllPontos(url) {
+        if ($rootScope.resource)
+            return 
         var httpPromise = $http.get('/pontos').success(function(response) {
             //console.log(angular.toJson(response,true));
         });
@@ -30,6 +44,7 @@ rackModule.controller('rackController', function ($scope, $http, SpringDataRestA
     } 
 
     function findAllPaineis() {
+        
         var httpPromise = $http.get('/paineis').success(function(response) {
             //console.log(angular.toJson(response,true));
         });
@@ -41,17 +56,22 @@ rackModule.controller('rackController', function ($scope, $http, SpringDataRestA
                 $scope.paineis = [];
             }
         });
-    }
+    }*/
 
-    findAllPaineis();
+    //findAllPaineis();
 
     //add a new task
-    $scope.novoPainel = function novoPainel() {
+    $scope.novoPainel = function () {
         if ($scope.nome == "" || $scope.numPortas == "") {
             alert("Dados Insuficientes! Por favor, informe o numero de portas e o nome do painel");
         }
         else {
-            $http.post(urlBase + '/paineis', {
+            return $scope.apiRoot.then(function(apiRoot) {
+                return apiRoot.$post('paineis', null, {
+                    nome : $scope.nome
+                }).then(load);
+            });
+/*            $http.post(urlBase + '/paineis', {
                 nome: $scope.nome
             }).
                     success(function (data, status, headers) {
@@ -64,11 +84,11 @@ rackModule.controller('rackController', function ($scope, $http, SpringDataRestA
                         // Refetching EVERYTHING every time can get expensive over time
                         // Better solution would be to $http.get(headers()["location"]) and add it to the list
                         findAllPaineis();
-                    });
-        }
-    };
+                    }); */
+        } 
+    }; 
     
-    function novoPonto(numero, painel) {
+/*    function novoPonto(numero, painel) {
         $http.post(urlBase + '/pontos',{
             numero: numero,
             painel: painel
@@ -77,47 +97,27 @@ rackModule.controller('rackController', function ($scope, $http, SpringDataRestA
                     var newPontoUri = headers()["location"];
                     //console.log("Ponto " + newPontoUri + " adicionado.");
                 });
-    };
-
-    // toggle selection for a given task by task id
-    /* $scope.toggleSelection = function toggleSelection(taskUri) {
-        var idx = $scope.selection.indexOf(taskUri);
-
-        // is currently selected
-        // HTTP PATCH to ACTIVE state
-        if (idx > -1) {
-            $http.patch(taskUri, {taskStatus: 'ACTIVE'}).
-                    success(function (data) {
-                        alert("Task unmarked");
-                        findAllTasks();
-                    });
-            $scope.selection.splice(idx, 1);
-        }
-
-        // is newly selected
-        // HTTP PATCH to COMPLETED state
-        else {
-            $http.patch(taskUri, {taskStatus: 'COMPLETED'}).
-                    success(function (data) {
-                        alert("Task marked completed");
-                        findAllTasks();
-                    });
-            $scope.selection.push(taskUri);
-        }
     }; */
 
-
-    // Archive Completed Tasks
-    /* $scope.archiveTasks = function archiveTasks() {
-        $scope.selection.forEach(function (taskUri) {
-            if (taskUri != undefined) {
-                $http.patch(taskUri, {taskArchived: 1});
-            }
+    function load() {
+        var search = $scope.search;
+        var promise;
+        if (search) {
+            promise = $scope.apiRoot.then(function(apiRoot) {
+                return apiRoot.$get('paineis', {
+                    search: search
+                });
+            });
+        } else {
+            promise = $scope.apiRoot.then(function(apiRoot) {
+                return apiRoot.$get('paineis');
+            });
+        }
+        return promise.then(function(paineis) {
+            $scope.paineis = paineis;
         });
-        alert("Successfully Archived");
-        console.log("It's risky to run this without confirming all the patches are done. when.js is great for that");
-        findAllTasks();
-    }; */
+    }
+
 
 });
 
