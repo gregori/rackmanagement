@@ -6,8 +6,8 @@ rackModule.controller('rackController', function ($scope, $http) {
     $scope.pts = [];
     $scope.pontos = [];
     //$scope.toggle = true;
-    $scope.numPortas = 24;
-    $scope.portOptions = [16, 24, 48];
+    $scope.numPortas = "24";
+    $scope.portOptions = ["16", "24", "48"];
 
     $http.defaults.headers.post["Content-Type"] = "application/json";
 

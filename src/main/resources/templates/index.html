@@ -40,9 +40,9 @@ and open the template in the editor.
             <div ng-repeat="painel in paineis">
               <span>{{painel.nome}}</span>
               <div class="btn-group btn-group-justified">
-                
-                  <a href="#" class="btn btn-primary" ng-repeat="ponto in pontos[painel.id]">{{ponto.numero}}</a>
-                
+                  <a href="#" class="btn btn-primary" ng-repeat="ponto in pontos[painel.id] | orderBy: 'numero'">
+                      {{ponto.numero}}
+                  </a>
               </div>
             </div><br/>
           </div>
