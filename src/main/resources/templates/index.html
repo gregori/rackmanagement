@@ -6,7 +6,7 @@ and open the template in the editor.
 -->
 <html ng-app="rackmanagement">
   <head lang="pt-br">
-    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
     <title>Gerenciamento de Rack</title>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -39,10 +39,10 @@ and open the template in the editor.
           <div>
             <div ng-repeat="painel in paineis">
               <span>{{painel.nome}}</span>
-              <div ng-repeat="ponto in pontos[painel.id]">
-                <a href="#" >
-                  {{ponto.numero}}
-                </a>
+              <div class="btn-group btn-group-justified">
+                
+                  <a href="#" class="btn btn-primary" ng-repeat="ponto in pontos[painel.id]">{{ponto.numero}}</a>
+                
               </div>
             </div><br/>
           </div>
