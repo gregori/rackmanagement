@@ -3,48 +3,45 @@ var rackModule = angular.module('rackmanagement', []);
 rackModule.controller('rackController', function ($scope, $http) {
 
     var urlBase = "";
+    $scope.pts = [];
+    $scope.pontos = [];
     //$scope.toggle = true;
     $scope.numPortas = 24;
     $scope.portOptions = [16, 24, 48];
 
     $http.defaults.headers.post["Content-Type"] = "application/json";
 
-    function findAllPontos(url) {
-        $http.get(url).
-                success(function (data) {
-                    if (data._embedded !== undefined) {
-                        $scope.pontos = data._embedded.pontos;
-                        angular.forEach(data._embedded.pontos, function (ponto) {
-                            angular.forEach(ponto._links, function (value, key) {
-                                if (key === 'painel') {
-                                    $http.get(value.href).success(function (p) {
-                                        $scope.pontos.painel = p;
-                                    })
-                                    $scope.pontos.painel = value.href;
-                                }
-                            })
-                        });
-                    } else {
-                        $scope.pontos = [];
-                    }
-                });
+    function findAllPontosByPainel(url) {
+        console.log(url);
+        if (url !== undefined) {
+            return $http.get(url);
+        }
     }
-
+    
     function findAllPaineis() {
         //get all tasks and display initially
         $http.get(urlBase + '/paineis').
                 success(function (data) {
                     if (data._embedded !== undefined) {
                         $scope.paineis = data._embedded.paineis;
-                        angular.forEach(data._embedded.paineis, function (painel) {
-                            angular.forEach(painel._links, function (value, key) {
+                        angular.forEach(data._embedded.paineis, function(painel) {
+                            angular.forEach(painel._links, function(value, key) {
                                 if (key === 'pontos') {
-                                    $scope.paineis.pontos = findAllPontos(value.href);
+                                    var promiss = findAllPontosByPainel(value.href);
+                                    promiss.success(function (data) {
+                                        console.log(data);
+                                        if (data._embedded !== undefined) {
+                                            $scope.pontos[painel.id] = data._embedded.pontos;
+                                        } else {
+                                            $scope.pontos[painel.id] = [];
+                                        }
+                                    });
                                 }
-                            });
+                            });                           
                         });
                     } else {
                         $scope.paineis = [];
+                        $scope.pontos = {};
                     }
                     //$scope.toggle = '!toggle';
                 });
@@ -87,45 +84,6 @@ rackModule.controller('rackController', function ($scope, $http) {
     }
     ;
 
-    // toggle selection for a given task by task id
-    /* $scope.toggleSelection = function toggleSelection(taskUri) {
-     var idx = $scope.selection.indexOf(taskUri);
-     
-     // is currently selected
-     // HTTP PATCH to ACTIVE state
-     if (idx > -1) {
-     $http.patch(taskUri, {taskStatus: 'ACTIVE'}).
-     success(function (data) {
-     alert("Task unmarked");
-     findAllTasks();
-     });
-     $scope.selection.splice(idx, 1);
-     }
-     
-     // is newly selected
-     // HTTP PATCH to COMPLETED state
-     else {
-     $http.patch(taskUri, {taskStatus: 'COMPLETED'}).
-     success(function (data) {
-     alert("Task marked completed");
-     findAllTasks();
-     });
-     $scope.selection.push(taskUri);
-     }
-     }; */
-
-
-    // Archive Completed Tasks
-    /* $scope.archiveTasks = function archiveTasks() {
-     $scope.selection.forEach(function (taskUri) {
-     if (taskUri != undefined) {
-     $http.patch(taskUri, {taskArchived: 1});
-     }
-     });
-     alert("Successfully Archived");
-     console.log("It's risky to run this without confirming all the patches are done. when.js is great for that");
-     findAllTasks();
-     }; */
 
 });
 
