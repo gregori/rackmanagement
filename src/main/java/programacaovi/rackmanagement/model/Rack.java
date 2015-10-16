@@ -11,7 +11,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
@@ -20,7 +19,7 @@ import javax.validation.constraints.NotNull;
  * @author rodrigo.gregori
  */
 @Entity
-public class Painel {
+public class Rack {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -28,26 +27,8 @@ public class Painel {
     @NotNull
     private String nome;
     
-    @OneToMany(mappedBy = "painel", fetch = FetchType.EAGER)
-    private List<Ponto> pontos;
-    
-    @ManyToOne
-    private Rack rack;
-    
-    public Painel() { }
-
-    public Painel(String nome) {
-        this.nome = nome;
-    }
-
-    public Painel(long id) {
-        this.id = id;
-    }
-    
-    public Painel(long id, String nome) {
-        this.id = id;
-        this.nome = nome;
-    }
+    @OneToMany(mappedBy = "rack", fetch = FetchType.EAGER)
+    private List<Painel> paineis;
 
     /**
      * @return the id
@@ -78,31 +59,17 @@ public class Painel {
     }
 
     /**
-     * @return the pontos
+     * @return the paineis
      */
-    public List<Ponto> getPontos() {
-        return pontos;
+    public List<Painel> getPaineis() {
+        return paineis;
     }
 
     /**
-     * @param pontos the pontos to set
+     * @param paineis the paineis to set
      */
-    public void setPontos(List<Ponto> pontos) {
-        this.pontos = pontos;
-    }
-
-    /**
-     * @return the rack
-     */
-    public Rack getRack() {
-        return rack;
-    }
-
-    /**
-     * @param rack the rack to set
-     */
-    public void setRack(Rack rack) {
-        this.rack = rack;
+    public void setPaineis(List<Painel> paineis) {
+        this.paineis = paineis;
     }
     
 }
