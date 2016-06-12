@@ -25,8 +25,8 @@ rackModule.controller('rackController', function ($scope, $http) {
                     if (data._embedded !== undefined) {
                         $scope.paineis = data._embedded.paineis;
                         angular.forEach(data._embedded.paineis, function(painel) {
-                            var promiss = findAllPontosByPainel(data._embedded.paineis._links.pontos.href);
-                            promiss.success(function (data) {
+                            var promise = findAllPontosByPainel(data._embedded.paineis._links.pontos.href);
+                            promise.success(function (data) {
                                 console.log(data);
                                 if (data._embedded !== undefined) {
                                     $scope.pontos[painel.id] = data._embedded.pontos;
